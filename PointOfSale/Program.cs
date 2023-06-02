@@ -1,6 +1,4 @@
-using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 using PointOfSale.Application.Services;
 using PointOfSale.DataAccess.DBContext;
@@ -39,41 +37,17 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(options =>
-{
-    options.AddSecurityDefinition("ApiKey", new OpenApiSecurityScheme
-    {
-        Description = "ApiKey must appear in header",
-        Type = SecuritySchemeType.ApiKey,
-        Name = "ApiKey",
-        In = ParameterLocation.Header,
-        Scheme = "ApiKeyScheme"
-    });
-    var key = new OpenApiSecurityScheme()
-    {
-        Reference = new OpenApiReference
-        {
-            Type = ReferenceType.SecurityScheme,
-            Id = "ApiKey"
-        },
-        In = ParameterLocation.Header
-    };
-    var requirement = new OpenApiSecurityRequirement
-    {
-        { key, new List<string>() }
-    };
-    options.AddSecurityRequirement(requirement);
-});
-builder.Services.AddScoped<ISaleTransactionService, SaleTransactionService>();
+
+
 builder.Services.AddDbContext<PointOfSaleDbContext>(options => options.UseSqlServer(
                 builder.Configuration.GetConnectionString("DefaultConnection"), b => b.MigrationsAssembly("PointOfSale.DataAccess")));
+
+builder.Services.AddScoped<IClientsServiceCommunicator, ClientsServiceCommunicator>();
+builder.Services.AddScoped<ISaleTransactionService, SaleTransactionService>();
 
 var serviceProvider = builder.Services.BuildServiceProvider();
 
 builder.Services.AddHttpClient();
-builder.Services.AddScoped<IClientsServiceCommunicator, ClientsServiceCommunicator>();
-
-
 
 ; builder.Services.AddControllers().AddJsonOptions(options =>
 {
